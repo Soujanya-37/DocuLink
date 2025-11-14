@@ -1,4 +1,4 @@
-import { auth, clerkClient } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import { FieldValue } from "firebase-admin/firestore";
 import { type NextRequest, NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
@@ -9,13 +9,15 @@ export async function POST(
   context: { params: { id: string } }
 ) {
   try {
+    // get document ID from URL
     const { id } = context.params;
+
+    // get current user from Clerk
+    const { userId } = auth();
 
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    const { id } = context.params;
 
     const docRef = adminDb.collection("documents").doc(id);
     const inviteRef = docRef.collection("invites").doc(userId);
@@ -27,14 +29,15 @@ export async function POST(
         { error: "No pending invitation found" },
         { status: 404 }
       );
-    }  
+    }
 
     const inviteData = inviteSnap.data() as InviteData;
 
-    // Check if invite is still valid (not expired)
+    // Check if invite is expired
     if (inviteData.expiresAt && inviteData.expiresAt.toDate() < new Date()) {
       await inviteRef.delete();
-      // Also clean up the user's inbox
+
+      // remove from inbox
       try {
         const inboxRef = adminDb
           .collection("users")
@@ -45,24 +48,25 @@ export async function POST(
       } catch (inboxError) {
         console.error("Failed to clean up inbox:", inboxError);
       }
+
       return NextResponse.json(
         { error: "Invitation has expired" },
-        { status: 410 },
+        { status: 410 }
       );
     }
 
-    // Update invite status to accepted
+    // Accept invite
     await inviteRef.update({
       status: "accepted",
     });
 
-    // Add user to document collaborators
+    // Add user to collaborators
     await docRef.update({
       collaborators: FieldValue.arrayUnion(userId),
       updatedAt: FieldValue.serverTimestamp(),
     });
 
-    // Clean up the user's inbox - remove the invite entry
+    // Remove invite from inbox
     try {
       const inboxRef = adminDb
         .collection("users")
@@ -82,7 +86,7 @@ export async function POST(
     console.error("Error accepting invitation:", error);
     return NextResponse.json(
       { error: "Failed to accept invitation" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
