@@ -6,7 +6,7 @@ import type { InviteData } from "@/lib/firestore-types";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
+  context: { params: { id: string } }
 ) {
   try {
     const { userId } = await auth();
@@ -14,17 +14,19 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = await params;
+    const { id } = context.params;
+
     const docRef = adminDb.collection("documents").doc(id);
     const inviteRef = docRef.collection("invites").doc(userId);
 
     const inviteSnap = await inviteRef.get();
+
     if (!inviteSnap.exists) {
       return NextResponse.json(
         { error: "No pending invitation found" },
-        { status: 404 },
+        { status: 404 }
       );
-    }
+    }  
 
     const inviteData = inviteSnap.data() as InviteData;
 
