@@ -6,12 +6,10 @@ import type { InviteData } from "@/lib/firestore-types";
 
 export async function POST(
   request: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
-    // get document ID from URL
-    const { id } = context.params;
-
+    const { id } = params;
     // get current user from Clerk
     const { userId } = auth();
 
