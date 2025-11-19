@@ -1089,6 +1089,8 @@ return (
     </div>
 
 
+
+
 {/* 📝 Editor Area */}
 <div className="relative mt-2">
   <div ref={containerRef} className="min-h-[400px]" />
@@ -1132,7 +1134,10 @@ return (
     </div>
 
     <DialogFooter>
-      <Button variant="outline" onClick={() => setShowSummaryDialog(false)}>
+      <Button
+        variant="outline"
+        onClick={() => setShowSummaryDialog(false)}
+      >
         Close
       </Button>
 
@@ -1140,12 +1145,13 @@ return (
         onClick={() => {
           try {
             const q = quillRef.current;
-            if (!q) return;
+if (!q) return;
 
-            const range = q.getSelection();
-            const insertAt = range ? range.index + range.length : q.getLength();
+const range = q.getSelection();
+const insertAt = range ? range.index + range.length : q.getLength();
 
-            q.insertText(insertAt, `\nSummary:\n${summaryText}\n`, "silent");
+q.insertText(insertAt, `\nSummary:\n${summaryText}\n`, "silent");
+
           } catch (err) {
             console.error("Insert summary failed:", err);
           }
@@ -1165,89 +1171,91 @@ return (
     </DialogFooter>
   </DialogContent>
 
-  {/* 📄 Plagiarism Insight */}
-  {plagiarismResult && (
-    <div
-      className={`mt-6 p-6 rounded-2xl border shadow-xl backdrop-blur-sm transition-all duration-500 ${
-        plagiarismResult.plagiarism_status === "Likely Copied"
-          ? "border-red-500/40 bg-gradient-to-br from-red-950/60 to-black/40 text-red-200"
-          : plagiarismResult.plagiarism_status === "Mostly Original"
-          ? "border-yellow-500/40 bg-gradient-to-br from-yellow-950/60 to-black/40 text-yellow-200"
-          : "border-violet-500/40 bg-gradient-to-br from-violet-950/60 to-black/40 text-violet-200"
-      }`}
-    >
-      {/* Header */}
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold text-violet-300 flex items-center gap-2">
-          <span><strong>Plagiarism Report</strong></span>
-        </h3>
-        <span
-          className={`px-3 py-1 rounded-full text-xs font-semibold ${
-            plagiarismResult.confidence > 70
-              ? "bg-red-600/40 text-red-300"
-              : plagiarismResult.confidence > 40
-              ? "bg-yellow-600/40 text-yellow-200"
-              : "bg-green-600/40 text-green-200"
-          }`}
-        >
-          {plagiarismResult.confidence > 70
-            ? "⚠️ High Plagiarism Risk"
+{/* 📄 Plagiarism Insight */}
+{plagiarismResult && (
+  <div
+    className={`mt-6 p-6 rounded-2xl border shadow-xl backdrop-blur-sm transition-all duration-500 ${
+      plagiarismResult.plagiarism_status === "Likely Copied"
+        ? "border-red-500/40 bg-gradient-to-br from-red-950/60 to-black/40 text-red-200"
+        : plagiarismResult.plagiarism_status === "Mostly Original"
+        ? "border-yellow-500/40 bg-gradient-to-br from-yellow-950/60 to-black/40 text-yellow-200"
+        : "border-violet-500/40 bg-gradient-to-br from-violet-950/60 to-black/40 text-violet-200"
+    }`}
+  >
+    {/* Header */}
+    <div className="flex justify-between items-center mb-4">
+      <h3 className="text-lg font-semibold text-violet-300 flex items-center gap-2">
+        <span><strong>Plagiarism Report</strong></span>
+      </h3>
+
+      <span
+        className={`px-3 py-1 rounded-full text-xs font-semibold ${
+          plagiarismResult.confidence > 70
+            ? "bg-red-600/40 text-red-300"
             : plagiarismResult.confidence > 40
-            ? "🟡 Moderate Similarity"
-            : "🟢 Highly Original"}
-        </span>
+            ? "bg-yellow-600/40 text-yellow-200"
+            : "bg-green-600/40 text-green-200"
+        }`}
+      >
+        {plagiarismResult.confidence > 70
+          ? "⚠️ High Plagiarism Risk"
+          : plagiarismResult.confidence > 40
+          ? "🟡 Moderate Similarity"
+          : "🟢 Highly Original"}
+      </span>
+    </div>
+
+    {/* Originality Analysis */}
+    <div className="space-y-3 text-sm leading-relaxed">
+      <div>
+        <p className="font-medium text-gray-300 mb-1">🧩 Originality Analysis:</p>
+        <p className="text-gray-400">
+          {plagiarismResult.confidence > 70
+            ? "Your document shows strong resemblance to known content patterns. Consider rephrasing or citing sources."
+            : plagiarismResult.confidence > 40
+            ? "Some portions may share conceptual or linguistic overlap with existing texts. Review phrasing for uniqueness."
+            : "Your content appears uniquely phrased and contextually original."}
+        </p>
       </div>
 
-      {/* Originality Analysis */}
-      <div className="space-y-3 text-sm leading-relaxed">
-        <div>
-          <p className="font-medium text-gray-300 mb-1">🧩 Originality Analysis:</p>
-          <p className="text-gray-400">
-            {plagiarismResult.confidence > 70
-              ? "Your document shows strong resemblance to known content patterns. Consider rephrasing or citing sources."
-              : plagiarismResult.confidence > 40
-              ? "Some portions may share conceptual or linguistic overlap with existing texts. Review phrasing for uniqueness."
-              : "Your content appears uniquely phrased and contextually original."}
-          </p>
+      <div>
+        <p className="font-medium text-gray-300 mb-1">📋 AI Observations:</p>
+        <ul className="list-disc ml-5 text-gray-400 space-y-1">
+          <li>{plagiarismResult.indicators}</li>
+          {plagiarismResult.confidence > 70 && (
+            <li>Multiple identical sentence structures detected.</li>
+          )}
+          {plagiarismResult.confidence > 40 && (
+            <li>Similar themes or phrasing found in related project summaries.</li>
+          )}
+          {plagiarismResult.confidence < 40 && (
+            <li>Distinct vocabulary and sentence formation detected.</li>
+          )}
+        </ul>
+      </div>
+
+      {/* Gauge Bar */}
+      <div>
+        <p className="font-medium text-gray-300 mb-1">📈 Originality Level:</p>
+
+        <div className="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
+          <div
+            className={`h-full transition-all duration-700 ease-in-out ${
+              plagiarismResult.confidence > 70
+                ? "bg-red-500"
+                : plagiarismResult.confidence > 40
+                ? "bg-yellow-400"
+                : "bg-violet-500"
+            }`}
+            style={{ width: `${100 - plagiarismResult.confidence}%` }}
+          ></div>
         </div>
 
-        {/* Observations */}
-        <div>
-          <p className="font-medium text-gray-300 mb-1">📋 AI Observations:</p>
-          <ul className="list-disc ml-5 text-gray-400 space-y-1">
-            <li>{plagiarismResult.indicators}</li>
-            {plagiarismResult.confidence > 70 && (
-              <li>Multiple identical sentence structures detected.</li>
-            )}
-            {plagiarismResult.confidence > 40 && (
-              <li>Similar themes or phrasing found in related summaries.</li>
-            )}
-            {plagiarismResult.confidence < 40 && (
-              <li>Distinct vocabulary and sentence formation detected.</li>
-            )}
-          </ul>
-        </div>
-
-        {/* Gauge Bar */}
-        <div>
-          <p className="font-medium text-gray-300 mb-1">📈 Originality Level:</p>
-          <div className="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
-            <div
-              className={`h-full transition-all duration-700 ease-in-out ${
-                plagiarismResult.confidence > 70
-                  ? "bg-red-500"
-                  : plagiarismResult.confidence > 40
-                  ? "bg-yellow-400"
-                  : "bg-violet-500"
-              }`}
-              style={{ width: `${100 - plagiarismResult.confidence}%` }}
-            ></div>
-          </div>
-          <p className="text-xs text-gray-400 mt-1 italic">
-            {100 - plagiarismResult.confidence}% estimated originality
-          </p>
-        </div>
+        <p className="text-xs text-gray-400 mt-1 italic">
+          {100 - plagiarismResult.confidence}% estimated originality
+                </p>
       </div>
     </div>
-  )}
+  </div>
+)}
 </Dialog>
