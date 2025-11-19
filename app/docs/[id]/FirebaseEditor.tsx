@@ -544,10 +544,18 @@ const handleAudioSelected: React.ChangeEventHandler<HTMLInputElement> = async (e
     if (!res.ok) return;
 
     const { text } = await res.json();
-    const q = quillRef.current;
-    const range = q.getSelection();
-    const insertAt = range ? range.index : q.getLength?.() ?? 0;
-    q.insertText(insertAt, `\n[Transcript]\n${text}\n`, "silent");
+const q = quillRef.current;
+
+if (!q) {
+  console.warn("⚠️ Quill editor is not initialized yet.");
+  return;
+}
+
+const range = q.getSelection();
+const insertAt = range?.index ?? q.getLength() ?? 0;
+
+q.insertText(insertAt, `\n[Transcript]\n${text}\n`, "silent");
+
   } catch (err) {
     console.error("Transcription failed", err);
   }
