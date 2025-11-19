@@ -1134,10 +1134,7 @@ return (
     </div>
 
     <DialogFooter>
-      <Button
-        variant="outline"
-        onClick={() => setShowSummaryDialog(false)}
-      >
+      <Button variant="outline" onClick={() => setShowSummaryDialog(false)}>
         Close
       </Button>
 
@@ -1145,13 +1142,10 @@ return (
         onClick={() => {
           try {
             const q = quillRef.current;
-if (!q) return;
-
-const range = q.getSelection();
-const insertAt = range ? range.index + range.length : q.getLength();
-
-q.insertText(insertAt, `\nSummary:\n${summaryText}\n`, "silent");
-
+            if (!q) return;
+            const range = q.getSelection();
+            const insertAt = range ? range.index + range.length : q.getLength();
+            q.insertText(insertAt, `\nSummary:\n${summaryText}\n`, "silent");
           } catch (err) {
             console.error("Insert summary failed:", err);
           }
@@ -1170,6 +1164,7 @@ q.insertText(insertAt, `\nSummary:\n${summaryText}\n`, "silent");
       </Button>
     </DialogFooter>
   </DialogContent>
+</Dialog>
 
 {/* 📄 Plagiarism Insight */}
 {plagiarismResult && (
@@ -1254,9 +1249,13 @@ q.insertText(insertAt, `\nSummary:\n${summaryText}\n`, "silent");
         <p className="text-xs text-gray-400 mt-1 italic">
           {100 - plagiarismResult.confidence}% estimated originality
         </p>
-      </div>    
-  )}
-</Dialog>
-);  
-}      
+      </div>
+    </div>
+  </div>
+)}
+
+</div> {/* CLOSES MAIN WRAPPER DIV */}
+);
+} {/* CLOSES COMPONENT FUNCTION */}
+
 export default FirebaseEditor;
