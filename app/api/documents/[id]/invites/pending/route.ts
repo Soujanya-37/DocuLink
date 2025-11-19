@@ -7,18 +7,20 @@ import type { InviteData } from "@/lib/firestore-types";
  * GET /api/documents/[id]/invites/pending
  * Returns all pending invites for a specific document
  */
-export async function GET(
-  req: Request,
-  { params }: { params: { id: string } },
-) {
+export async function GET(request: Request, context: any) {
   try {
-    const { userId } = await auth();
+    const params = context?.params;
+    const id = params?.id;
 
+    if (!id) {
+      return NextResponse.json({ error: "Missing document ID" }, { status: 400 });
+    }
+
+    const { userId } = await auth();
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = params;
     const docRef = adminDb.collection("documents").doc(id);
     const docSnap = await docRef.get();
 
@@ -31,7 +33,7 @@ export async function GET(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    // ✅ Fetch all invites for this document
+    // Fetch all invites
     const invitesSnap = await docRef.collection("invites").get();
     const now = new Date();
 
@@ -48,14 +50,14 @@ export async function GET(
       if (data.status !== "pending") return;
 
       let isExpired = false;
+
       if (data.expiresAt) {
         try {
-          // Handle Firestore Timestamp or JS Date
-          const expiresDate =
-            typeof data.expiresAt.toDate === "function"
-              ? data.expiresAt.toDate()
-              : new Date(data.expiresAt);
-          isExpired = expiresDate < now;
+          const expires = typeof data.expiresAt.toDate === "function"
+            ? data.expiresAt.toDate()
+            : new Date(data.expiresAt);
+
+          isExpired = expires < now;
         } catch (err) {
           console.warn("⚠️ Could not parse expiresAt:", err);
         }
@@ -84,7 +86,7 @@ export async function GET(
     console.error("❌ Error fetching pending invites:", error);
     return NextResponse.json(
       { error: "Failed to fetch pending invites" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
