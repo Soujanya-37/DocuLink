@@ -1244,5 +1244,7 @@ return (
 )}
   </div>
   );
-}
+} // closes component function
+
+
 
