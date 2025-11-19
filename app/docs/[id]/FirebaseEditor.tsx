@@ -724,10 +724,19 @@ const startTTS = () => {
 
     const q = quillRef.current;
     const range = q?.getSelection?.();
-    const text =
-      range && range.length > 0
-        ? q.getText(range.index, range.length)
-        : q?.getText?.();
+    const q = quillRef.current;
+
+if (!q) {
+  console.warn("⚠️ Quill editor not ready — aborting summarize.");
+  return;
+}
+
+const range = q.getSelection();
+const text =
+  range && range.length > 0
+    ? q.getText(range.index, range.length)
+    : q.getText();
+
 
     if (!text?.trim()) {
       console.warn("No text selected or available for TTS.");
