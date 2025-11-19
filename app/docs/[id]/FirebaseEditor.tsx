@@ -1246,5 +1246,3 @@ return (
   );
 }
 
-export default FirebaseEditor;
-
