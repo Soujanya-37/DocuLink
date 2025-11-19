@@ -13,6 +13,8 @@ export interface DocumentData {
   deltaOps?: any[]; // For real-time collaboration
 }
 
+
+
 // Version metadata stored in Firestore
 // Supports both legacy (createdAt/fileKey/createdByUserId) and new (timestamp/s3Key/createdBy) fields
 export interface VersionMeta {
@@ -43,10 +45,12 @@ export interface PresenceData {
 }
 
 // Invite data for document sharing
+
 export interface InviteData {
   email: string;
   invitedBy: string;
-  status: "pending" | "accepted" | "declined";
-  createdAt: Timestamp;
-  expiresAt: Timestamp;
+  invitedUserId: string | null;   // ✅ ADD THIS
+  status: string;
+  createdAt: any;
+  expiresAt: any;
 }
