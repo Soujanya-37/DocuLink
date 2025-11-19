@@ -1253,10 +1253,12 @@ q.insertText(insertAt, `\nSummary:\n${summaryText}\n`, "silent");
 
         <p className="text-xs text-gray-400 mt-1 italic">
           {100 - plagiarismResult.confidence}% estimated originality
-                </p>
-                  </div>
-    )}
-  </Dialog>
-</div>
-);       // ← closes return(...)
-}        // ← closes `export default function FirebaseEditor(...)`
+                            </p>
+          </div>
+        </div>
+      )}
+          </Dialog>
+    </div>
+  );
+}
+
