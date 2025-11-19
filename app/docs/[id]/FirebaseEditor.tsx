@@ -1243,8 +1243,9 @@ return (
   </div>
 )}
 
-</div>  {/* closes editor wrapper */}
-);      {/* closes return() */}
-}       {/* closes component function */}
+</div> {/* closes editor wrapper */}
+  );
+} // closes component function
 
 export default FirebaseEditor;
+
