@@ -4,13 +4,17 @@ import { adminDb } from "@/lib/firebase-admin";
 import type { InviteData } from "@/lib/firestore-types";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(
-  request: NextRequest,
-  context: { params: { id: string } }
-) {
+export async function POST(request: NextRequest, context: any) {
   try {
-    const { id } = context.params;
+    // Extract params safely
+    const params = context?.params;
+    const id = params?.id;
 
+    if (!id) {
+      return NextResponse.json({ error: "Missing document ID" }, { status: 400 });
+    }
+
+    // Read body
     const body = await request.json();
     const email = body?.email?.toLowerCase?.();
 
@@ -18,11 +22,13 @@ export async function POST(
       return NextResponse.json({ error: "Email required" }, { status: 400 });
     }
 
+    // Verify user
     const { userId } = auth();
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // Document lookup
     const docRef = adminDb.collection("documents").doc(id);
     const docSnap = await docRef.get();
 
@@ -31,27 +37,25 @@ export async function POST(
     }
 
     const data = docSnap.data();
+
     if (data?.ownerId !== userId) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     // Try Clerk lookup
     let invitedUserId: string | null = null;
-    try {
-      if (
-        clerkClient &&
-        (clerkClient as any).users &&
-        typeof (clerkClient as any).users.getUserList === "function"
-      ) {
-        const users = await (clerkClient as any).users.getUserList({
-          emailAddress: [email],
-        });
 
-        if (users?.data && users.data.length > 0) {
-          invitedUserId = users.data[0].id;
-        }
+    try {
+      const users = await (clerkClient as any).users.getUserList({
+        emailAddress: [email],
+      });
+
+      if (users?.data && users.data.length > 0) {
+        invitedUserId = users.data[0].id;
       }
-    } catch (_) {}
+    } catch (err) {
+      console.log("Clerk lookup failed but continuing:", err);
+    }
 
     // Prevent duplicate invites
     const inviteDocId = invitedUserId ?? email;
@@ -65,6 +69,7 @@ export async function POST(
       );
     }
 
+    // Prepare invite data
     const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
     const inviteData: Omit<InviteData, "id"> = {
       email,
@@ -75,9 +80,10 @@ export async function POST(
       expiresAt: Timestamp.fromDate(new Date(Date.now() + sevenDaysMs)) as any,
     };
 
+    // Store invite
     await inviteRef.set(inviteData);
 
-    // Write to inbox
+    // Fan-out to inbox
     try {
       const inboxDocId = invitedUserId ?? email;
       const inboxRef = adminDb
@@ -96,13 +102,16 @@ export async function POST(
         },
         { merge: true }
       );
-    } catch (_) {}
+    } catch (err) {
+      console.log("Inbox write failed (not fatal):", err);
+    }
 
     return NextResponse.json({
       message: "Invitation created successfully",
       invitedUserId,
     });
   } catch (error: any) {
+    console.error("API Error:", error);
     return NextResponse.json(
       { error: error.message || "Internal Server Error" },
       { status: 500 }
