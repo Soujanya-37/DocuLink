@@ -1242,10 +1242,9 @@ return (
     </div>
   </div>
 )}
-
-</div> {/* closes editor wrapper */}
+  </div>
   );
-} // closes component function
+}
 
 export default FirebaseEditor;
 
