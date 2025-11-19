@@ -1166,6 +1166,7 @@ return (
   </DialogContent>
 </Dialog>
 
+
 {/* 📄 Plagiarism Insight */}
 {plagiarismResult && (
   <div
@@ -1177,10 +1178,9 @@ return (
         : "border-violet-500/40 bg-gradient-to-br from-violet-950/60 to-black/40 text-violet-200"
     }`}
   >
-    {/* Header */}
     <div className="flex justify-between items-center mb-4">
-      <h3 className="text-lg font-semibold text-violet-300 flex items-center gap-2">
-        <span><strong>Plagiarism Report</strong></span>
+      <h3 className="text-lg font-semibold text-violet-300">
+        <strong>Plagiarism Report</strong>
       </h3>
 
       <span
@@ -1200,15 +1200,14 @@ return (
       </span>
     </div>
 
-    {/* Originality Analysis */}
     <div className="space-y-3 text-sm leading-relaxed">
       <div>
         <p className="font-medium text-gray-300 mb-1">🧩 Originality Analysis:</p>
         <p className="text-gray-400">
           {plagiarismResult.confidence > 70
-            ? "Your document shows strong resemblance to known content patterns. Consider rephrasing or citing sources."
+            ? "Your document shows strong resemblance to known content patterns."
             : plagiarismResult.confidence > 40
-            ? "Some portions may share conceptual or linguistic overlap with existing texts. Review phrasing for uniqueness."
+            ? "Some portions may share conceptual or linguistic overlap."
             : "Your content appears uniquely phrased and contextually original."}
         </p>
       </div>
@@ -1217,19 +1216,9 @@ return (
         <p className="font-medium text-gray-300 mb-1">📋 AI Observations:</p>
         <ul className="list-disc ml-5 text-gray-400 space-y-1">
           <li>{plagiarismResult.indicators}</li>
-          {plagiarismResult.confidence > 70 && (
-            <li>Multiple identical sentence structures detected.</li>
-          )}
-          {plagiarismResult.confidence > 40 && (
-            <li>Similar themes or phrasing found in related project summaries.</li>
-          )}
-          {plagiarismResult.confidence < 40 && (
-            <li>Distinct vocabulary and sentence formation detected.</li>
-          )}
         </ul>
       </div>
 
-      {/* Gauge Bar */}
       <div>
         <p className="font-medium text-gray-300 mb-1">📈 Originality Level:</p>
 
@@ -1254,8 +1243,8 @@ return (
   </div>
 )}
 
-</div> {/* CLOSES MAIN WRAPPER DIV */}
-);
-} {/* CLOSES COMPONENT FUNCTION */}
+</div>  {/* closes editor wrapper */}
+);      {/* closes return() */}
+}       {/* closes component function */}
 
 export default FirebaseEditor;
